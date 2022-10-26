@@ -4,9 +4,12 @@ const socketio = require('socket.io');
 const { generateProduct } = require('./faker.js');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const yargs = require('yargs/yargs')(process.argv.slice(2));
+
+const args = yargs.default('port', 8080).alias('p', 'port').argv;
 
 const app = express();
-const PORT = 8080;
+const PORT = args.port;
 const server = app.listen(PORT, () => {
     console.log(`Servidor http escuchando en el puerto ${server.address().port}`);
 });
@@ -184,3 +187,19 @@ app.post('/login', passport.authenticate('login', {
     failureRedirect: '/login',
     failureFlash: true
 }));
+
+const info = require('./info.js');
+
+app.get('/info', (req, res) => {
+    res.render('info.hbs', { info });
+});
+
+const { fork }  = require('child_process');
+
+app.get('/api/randoms', (req, res) => {
+    const randoms = fork('./randoms.js');
+    randoms.send('start');
+    randoms.on('message', (randoms) => {
+        res.send(randoms);
+    });
+});

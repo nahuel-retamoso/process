@@ -2,15 +2,16 @@ const { MongoCRUD } = require('../contenedores/MongoDB.js');
 const normalize = require('normalizr').normalize;
 const denormalize = require('normalizr').denormalize;
 const schema = require('normalizr').schema;
+require('dotenv').config();
 
 
 
 class MensajesDAO extends MongoCRUD {
     constructor() {
         super({
-            url: 'mongodb://localhost:27017',
-            dbName: 'ecommerce',
-            collection: 'mensajes'
+            url: process.env.MONGO_URL,
+            dbName: process.env.MONGO_DB,
+            collection: process.env.MONGO_COLLECTION,
         });
         this.authorSchema = new schema.Entity('author', {}, { idAttribute: 'email' });
         this.messageSchema = new schema.Entity('message', { author: this.authorSchema });
